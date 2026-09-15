@@ -17,7 +17,7 @@ windows = { version = "0.62.2", features = [
     "Win32_Security",
 ] }
 windows-reactor = "0.100.0"
-nanai-gna-dll-rs = { git = "https://github.com/nanaisisi/nanai-gna-dll-rs.git" }
+nanai-gna-dll-load = { git = "https://github.com/nanaisisi/nanai-gna-dll-rs.git" }
 
 [build-dependencies]
 windows-reactor-setup = "0.100.0"
