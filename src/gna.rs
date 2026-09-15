@@ -24,7 +24,7 @@ fn print_usage(program: &str) {
 
 fn main() {
     println!("==================================================");
-    println!("  nanai-gna-dll-rs: GNA Dynamic DLL Loader Demo   ");
+    println!("  nanai-intel-gna-monitor: Intel CPU GNA Usage Monitoring Tool   ");
     println!("==================================================");
 
     let mut args = env::args();
