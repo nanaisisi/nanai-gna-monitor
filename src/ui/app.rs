@@ -108,15 +108,10 @@ impl RammapApp {
         };
         match self.tab {
             MemoryTab::SystemRam => format!(
-                "Processes: {} | Physical RAM: {} (Used: {} / {}%) | Commit: {} / {}",
-                self.summary.process_count,
-                format_bytes(self.summary.total_phys_bytes),
-                format_bytes(self.summary.used_phys_bytes),
-                self.summary.memory_load_pct,
-                format_bytes(self.summary.commit_total_bytes),
-                format_bytes(self.summary.commit_limit_bytes)
+                "Gna capacity butes: {}",
+                format_bytes(self.summary.total_gna_capacity_bytes)
             ),
-            MemoryTab::GpuVram => format!("Processes: {} | {}", self.summary.process_count, gpu),
+            MemoryTab::GpuVram => format!("Processes: {} | {}", self.summary.total_gna_capacity_bytes, gpu),
         }
     }
 
@@ -175,10 +170,8 @@ impl RammapApp {
                 p.pid,
                 p.name,
                 classify_process(&p.name).label(),
-                format_bytes(p.working_set_bytes),
-                format_bytes(p.private_bytes),
-                format_bytes(p.gpu_dedicated_bytes),
-                format_bytes(p.gpu_shared_bytes)
+                format_bytes(p.pid.into()),
+                format_bytes(p.gna_usage_bytes.into())
             )
         } else {
             "💡 Click any 2D tile or table row to inspect details. Switch between System RAM and GPU VRAM tabs above.".to_string()

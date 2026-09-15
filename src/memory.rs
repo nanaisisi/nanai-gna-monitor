@@ -8,7 +8,7 @@ use windows::Win32::Foundation::{CloseHandle, INVALID_HANDLE_VALUE};
 pub struct GnomeUsageMetrics {
     pub total_gna_usage_bytes: u64,
     // Placeholder fields to maintain API compatibility if the DLL changes
-    pub dedicated_gna_usage_bytes: u64, 
+    pub dedicated_gna_usage_bytes: u64,
     pub shared_gna_usage_bytes: u64,
 }
 
@@ -16,7 +16,7 @@ pub struct GnomeUsageMetrics {
 #[derive(Debug, Clone, Default)]
 pub struct SystemMemorySummary {
     // Placeholder for total monitored capacity (e.g., Total available GNA units)
-    pub total_gna_capacity_bytes: u64, 
+    pub total_gna_capacity_bytes: u64,
 }
 
 /// Represents the GNA usage metrics for a specific process or system component.
@@ -58,7 +58,7 @@ pub fn collect_system_gna_summary() -> SystemMemorySummary {
 /// This assumes the external API (or a helper tool) will provide individual process usage.
 // In reality, this would loop through processes and call DLL functions per PID if necessary.
 pub fn collect_process_memory(all_processes: &[(u32, String)]) -> Vec<ProcessMemoryEntry> {
-    all_processes.iter().map(|&(pid, name)| {
+    all_processes.iter().map(|&(pid, ref name)| {
         ProcessMemoryEntry {
             pid,
             name: name.clone(),
