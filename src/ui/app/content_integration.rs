@@ -1,8 +1,8 @@
 use super::content_core::{group_info, sort_groups, sort_processes};
 use crate::category::{classify_process, group_by_category, group_by_name};
 use crate::memory::{format_bytes, ProcessMemoryEntry};
-use crate::ui::app_core::RammapApp;
-use crate::ui::types::{GroupMode, RammapMessage};
+use crate::ui::app_core::GnaApp;
+use crate::ui::types::{GroupMode, GnaMessage};
 use windows_reactor::*;
 
 fn process_header() -> View {
@@ -81,8 +81,8 @@ fn group_header() -> View {
     )
 }
 
-pub(super) fn individual_list<S: Fn(RammapMessage) + Clone + 'static>(
-    app: &RammapApp,
+pub(super) fn individual_list<S: Fn(GnaMessage) + Clone + 'static>(
+    app: &GnaApp,
     sender: S,
     mut processes: Vec<ProcessMemoryEntry>,
 ) -> View {
@@ -102,7 +102,7 @@ pub(super) fn individual_list<S: Fn(RammapMessage) + Clone + 'static>(
                 Brush::Solid(Color::transparent())
             })
             .on_pointer_pressed(move |_| {
-                click_sender(RammapMessage::SelectProcess(
+                click_sender(GnaMessage::SelectProcess(
                     Some(selected_process.clone()),
                     None,
                 ));
@@ -141,8 +141,8 @@ pub(super) fn individual_list<S: Fn(RammapMessage) + Clone + 'static>(
         .children((process_header(), content))
 }
 
-pub(super) fn grouped_list<S: Fn(RammapMessage) + Clone + 'static>(
-    app: &RammapApp,
+pub(super) fn grouped_list<S: Fn(GnaMessage) + Clone + 'static>(
+    app: &GnaApp,
     sender: S,
     processes: Vec<ProcessMemoryEntry>,
 ) -> View {
@@ -167,7 +167,7 @@ pub(super) fn grouped_list<S: Fn(RammapMessage) + Clone + 'static>(
                 Brush::Solid(Color::transparent())
             })
             .on_pointer_pressed(move |_| {
-                click_sender(RammapMessage::SelectProcess(
+                click_sender(GnaMessage::SelectProcess(
                     first.clone(),
                     Some(info.clone()),
                 ));

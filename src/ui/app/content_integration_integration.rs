@@ -1,13 +1,13 @@
 use super::content_integration::{grouped_list, individual_list};
 use super::content_integration_core::{grouped_treemap, individual_treemap};
 use crate::memory::ProcessMemoryEntry;
-use crate::ui::app_core::RammapApp;
-use crate::ui::types::{GroupMode, RammapMessage, ViewMode};
+use crate::ui::app_core::GnaApp;
+use crate::ui::types::{GroupMode, GnaMessage, ViewMode};
 use windows_reactor::View;
 
-pub(super) fn build<S>(app: &RammapApp, sender: S, filtered: Vec<ProcessMemoryEntry>) -> View
+pub(super) fn build<S>(app: &GnaApp, sender: S, filtered: Vec<ProcessMemoryEntry>) -> View
 where
-    S: Fn(RammapMessage) + Clone + 'static,
+    S: Fn(GnaMessage) + Clone + 'static,
 {
     match app.view_mode {
         ViewMode::Treemap => match app.group_mode {

@@ -32,7 +32,7 @@
   </Resources>
 
   <Applications>
-    <Application Id="nanaiLiteRammap"
+    <Application Id="nanaiLiteGna"
       Executable="$targetnametoken$.exe"
       EntryPoint="Windows.FullTrustApplication"
       uap10:TrustLevel="mediumIL"

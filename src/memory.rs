@@ -12,10 +12,10 @@ pub struct GnomeUsageMetrics {
     pub shared_gna_usage_bytes: u64,
 }
 
-/// Summarizes overall system resources relevant to GNA.
+/// Summarizes overall system resources relevant to GNA monitoring only.
 #[derive(Debug, Clone, Default)]
 pub struct SystemMemorySummary {
-    // Placeholder for total monitored capacity (e.g., Total available GNA units)
+    // Total monitored capacity (e.g., Max available GNA units)
     pub total_gna_capacity_bytes: u64,
 }
 

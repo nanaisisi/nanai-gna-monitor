@@ -2,9 +2,9 @@ use crate::gpu::{GpuAdapterInfo, collect_all_process_gpu_memory, collect_gpu_ada
 use crate::memory::{
     ProcessMemoryEntry, SystemMemorySummary, collect_process_memory, collect_system_summary,
 };
-use crate::ui::types::{AppInput, GroupMode, MemoryMetric, MemoryTab, RammapMessage, ViewMode};
+use crate::ui::types::{AppInput, GroupMode, MemoryMetric, MemoryTab, GnaMessage, ViewMode};
 
-pub struct RammapApp {
+pub struct GnaApp {
     pub(super) tab: MemoryTab,
     pub(super) summary: SystemMemorySummary,
     pub(super) gpu_adapters: Vec<GpuAdapterInfo>,
@@ -31,7 +31,7 @@ fn fetch_all_processes(gpu_adapters: &[GpuAdapterInfo]) -> Vec<ProcessMemoryEntr
     processes
 }
 
-impl RammapApp {
+impl GnaApp {
     pub(super) fn new(_input: &AppInput) -> Self {
         let summary = collect_system_summary();
         let gpu_adapters = collect_gpu_adapters();
@@ -50,9 +50,9 @@ impl RammapApp {
         }
     }
 
-    pub(super) fn update_message(&mut self, message: RammapMessage) {
+    pub(super) fn update_message(&mut self, message: GnaMessage) {
         match message {
-            RammapMessage::Refresh => {
+            GnaMessage::Refresh => {
                 self.summary = collect_system_summary();
                 self.gpu_adapters = collect_gpu_adapters();
                 self.processes = fetch_all_processes(&self.gpu_adapters);
@@ -61,7 +61,7 @@ impl RammapApp {
                     self.selected_process = self.processes.iter().find(|p| p.pid == pid).cloned();
                 }
             }
-            RammapMessage::SetTab(tab) => {
+            GnaMessage::SetTab(tab) => {
                 self.tab = tab;
                 if tab == MemoryTab::GpuVram
                     && self.metric != MemoryMetric::GpuDedicated
@@ -75,10 +75,10 @@ impl RammapApp {
                     self.metric = MemoryMetric::WorkingSet;
                 }
             }
-            RammapMessage::SearchChanged(query) => self.search_query = query,
-            RammapMessage::SetViewMode(mode) => self.view_mode = mode,
-            RammapMessage::SetGroupMode(mode) => self.group_mode = mode,
-            RammapMessage::ToggleMetric => {
+            GnaMessage::SearchChanged(query) => self.search_query = query,
+            GnaMessage::SetViewMode(mode) => self.view_mode = mode,
+            GnaMessage::SetGroupMode(mode) => self.group_mode = mode,
+            GnaMessage::ToggleMetric => {
                 self.metric = match self.tab {
                     MemoryTab::SystemRam => match self.metric {
                         MemoryMetric::WorkingSet => MemoryMetric::PrivateWs,
@@ -90,7 +90,7 @@ impl RammapApp {
                     },
                 };
             }
-            RammapMessage::SelectProcess(process, group_title) => {
+            GnaMessage::SelectProcess(process, group_title) => {
                 self.selected_process = process;
                 self.selected_group_title = group_title;
             }

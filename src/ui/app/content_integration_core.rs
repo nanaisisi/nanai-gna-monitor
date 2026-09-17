@@ -4,9 +4,9 @@ use super::content_core::{
 use crate::category::{classify_process, group_by_category, group_by_name};
 use crate::memory::{format_bytes, ProcessMemoryEntry};
 use crate::treemap::{layout_treemap, Rect, TreemapItem};
-use crate::ui::app_core::RammapApp;
+use crate::ui::app_core::GnaApp;
 use crate::ui::theme::{color_for_category, wrap_canvas};
-use crate::ui::types::{GroupMode, RammapMessage};
+use crate::ui::types::{GroupMode, GnaMessage};
 use windows_reactor::*;
 
 const CANVAS_WIDTH: f64 = 1000.0;
@@ -21,8 +21,8 @@ fn bounds() -> Rect {
     }
 }
 
-pub(super) fn individual_treemap<S: Fn(RammapMessage) + Clone + 'static>(
-    app: &RammapApp,
+pub(super) fn individual_treemap<S: Fn(GnaMessage) + Clone + 'static>(
+    app: &GnaApp,
     sender: S,
     processes: Vec<ProcessMemoryEntry>,
 ) -> View {
@@ -74,7 +74,7 @@ pub(super) fn individual_treemap<S: Fn(RammapMessage) + Clone + 'static>(
             .canvas_left(node.rect.x)
             .canvas_top(node.rect.y)
             .on_pointer_pressed(move |_| {
-                click_sender(RammapMessage::SelectProcess(
+                click_sender(GnaMessage::SelectProcess(
                     Some(selected_process.clone()),
                     None,
                 ));
@@ -95,8 +95,8 @@ pub(super) fn individual_treemap<S: Fn(RammapMessage) + Clone + 'static>(
     )
 }
 
-pub(super) fn grouped_treemap<S: Fn(RammapMessage) + Clone + 'static>(
-    app: &RammapApp,
+pub(super) fn grouped_treemap<S: Fn(GnaMessage) + Clone + 'static>(
+    app: &GnaApp,
     sender: S,
     processes: Vec<ProcessMemoryEntry>,
 ) -> View {
@@ -153,7 +153,7 @@ pub(super) fn grouped_treemap<S: Fn(RammapMessage) + Clone + 'static>(
             .canvas_left(node.rect.x)
             .canvas_top(node.rect.y)
             .on_pointer_pressed(move |_| {
-                click_sender(RammapMessage::SelectProcess(
+                click_sender(GnaMessage::SelectProcess(
                     first.clone(),
                     Some(info.clone()),
                 ));

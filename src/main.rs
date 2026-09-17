@@ -5,7 +5,7 @@ mod memory;
 mod treemap;
 mod ui;
 
-use ui::app::RammapApp;
+use ui::app::GnaApp;
 use ui::types::AppInput;
 use windows_reactor::App;
 use std::error::Error;
@@ -23,6 +23,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     };
 
-    App::run_component::<RammapApp>(AppInput)?;
+    App::run_component::<GnaApp>(AppInput)?;
     Ok(())
 }
