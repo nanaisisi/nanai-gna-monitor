@@ -105,8 +105,15 @@ impl RammapApp {
     fn subtitle(&self) -> String {
         let gna = crate::gna_service::get_gna_status();
         format!(
-            "Intel GNA 3.0 NPU | State: {} | Bench: {}",
-            gna.description, gna.last_test_status
+            "Intel GNA 3.0 NPU ({}) | Detected: {} | Loaded: {} | State: {} | Inferences: {} ({:.2} ms, {:.1} IPS) | Bench: {}",
+            gna.device_name,
+            gna.is_detected,
+            gna.is_loaded,
+            gna.description,
+            gna.completed_inferences,
+            gna.avg_latency_ms,
+            gna.throughput_ips,
+            gna.last_test_status
         )
     }
 

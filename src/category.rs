@@ -158,7 +158,6 @@ pub fn classify_process(name: &str) -> ProcessCategory {
 /// Group a list of items into category buckets or process-name buckets
 #[derive(Debug, Clone)]
 pub struct ProcessGroup<T> {
-    pub key: String,
     pub title: String,
     pub category: ProcessCategory,
     pub total_working_set: u64,
@@ -193,7 +192,6 @@ pub fn group_by_name(
         };
 
         groups.push(ProcessGroup {
-            key: name,
             title,
             category,
             total_working_set,
@@ -226,7 +224,6 @@ pub fn group_by_category(
         let title = format!("{} ({} processes)", cat.label(), count);
 
         groups.push(ProcessGroup {
-            key: format!("{:?}", cat),
             title,
             category: cat,
             total_working_set,

@@ -10,13 +10,9 @@ use windows::Win32::System::Threading::{OpenProcess, PROCESS_QUERY_LIMITED_INFOR
 use windows::core::Interface;
 use windows::core::s;
 
-#[allow(dead_code)]
 #[derive(Debug, Clone, Default)]
 pub struct GpuAdapterInfo {
-    pub name: String,
     pub luid: LUID,
-    pub dedicated_vram_bytes: u64,
-    pub shared_ram_bytes: u64,
     pub dedicated_usage_bytes: u64,
     pub dedicated_budget_bytes: u64,
     pub shared_usage_bytes: u64,
@@ -97,18 +93,8 @@ pub fn collect_gpu_adapters() -> Vec<GpuAdapterInfo> {
                 continue;
             }
 
-            let name_len = desc
-                .Description
-                .iter()
-                .position(|&c| c == 0)
-                .unwrap_or(desc.Description.len());
-            let name = String::from_utf16_lossy(&desc.Description[..name_len]);
-
             let mut info = GpuAdapterInfo {
-                name,
                 luid: desc.AdapterLuid,
-                dedicated_vram_bytes: desc.DedicatedVideoMemory as u64,
-                shared_ram_bytes: desc.SharedSystemMemory as u64,
                 ..Default::default()
             };
 

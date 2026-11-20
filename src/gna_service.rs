@@ -1,7 +1,6 @@
 use nanai_gna_dll_load::{GnaDevice, GnaLibrary};
 use std::sync::{Arc, LazyLock, Mutex};
 
-#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct GnaHardwareStatus {
     pub is_detected: bool,
