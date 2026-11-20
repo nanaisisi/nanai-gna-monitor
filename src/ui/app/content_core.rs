@@ -1,5 +1,5 @@
 use crate::category::ProcessGroup;
-use crate::memory::{format_bytes, ProcessMemoryEntry};
+use crate::memory::{ProcessMemoryEntry, format_bytes};
 use crate::ui::types::{MemoryMetric, MemoryTab};
 
 pub(super) fn metric_value(p: &ProcessMemoryEntry, metric: MemoryMetric) -> f64 {

@@ -1,8 +1,8 @@
 use super::content_core::{group_info, sort_groups, sort_processes};
 use crate::category::{classify_process, group_by_category, group_by_name};
-use crate::memory::{format_bytes, ProcessMemoryEntry};
-use crate::ui::app_core::GnaApp;
-use crate::ui::types::{GroupMode, GnaMessage};
+use crate::memory::{ProcessMemoryEntry, format_bytes};
+use crate::ui::app_core::RammapApp;
+use crate::ui::types::{GroupMode, RammapMessage};
 use windows_reactor::*;
 
 fn process_header() -> View {
@@ -36,7 +36,7 @@ fn process_header() -> View {
                     .width(100.0)
                     .font_weight(FontWeight::BOLD),
                 TextBlock::new()
-                    .text("GPU Shared")
+                    .text("GNA / NPU")
                     .width(100.0)
                     .font_weight(FontWeight::BOLD),
             )),
@@ -81,8 +81,8 @@ fn group_header() -> View {
     )
 }
 
-pub(super) fn individual_list<S: Fn(GnaMessage) + Clone + 'static>(
-    app: &GnaApp,
+pub(super) fn individual_list<S: Fn(RammapMessage) + Clone + 'static>(
+    app: &RammapApp,
     sender: S,
     mut processes: Vec<ProcessMemoryEntry>,
 ) -> View {
@@ -102,7 +102,7 @@ pub(super) fn individual_list<S: Fn(GnaMessage) + Clone + 'static>(
                 Brush::Solid(Color::transparent())
             })
             .on_pointer_pressed(move |_| {
-                click_sender(GnaMessage::SelectProcess(
+                click_sender(RammapMessage::SelectProcess(
                     Some(selected_process.clone()),
                     None,
                 ));
@@ -125,7 +125,11 @@ pub(super) fn individual_list<S: Fn(GnaMessage) + Clone + 'static>(
                             .text(format_bytes(p.gpu_dedicated_bytes))
                             .width(100.0),
                         TextBlock::new()
-                            .text(format_bytes(p.gpu_shared_bytes))
+                            .text(if p.gna_usage_bytes > 0 {
+                                format_bytes(p.gna_usage_bytes)
+                            } else {
+                                "-".to_string()
+                            })
                             .width(100.0),
                     )),
             );
@@ -141,8 +145,8 @@ pub(super) fn individual_list<S: Fn(GnaMessage) + Clone + 'static>(
         .children((process_header(), content))
 }
 
-pub(super) fn grouped_list<S: Fn(GnaMessage) + Clone + 'static>(
-    app: &GnaApp,
+pub(super) fn grouped_list<S: Fn(RammapMessage) + Clone + 'static>(
+    app: &RammapApp,
     sender: S,
     processes: Vec<ProcessMemoryEntry>,
 ) -> View {
@@ -167,7 +171,7 @@ pub(super) fn grouped_list<S: Fn(GnaMessage) + Clone + 'static>(
                 Brush::Solid(Color::transparent())
             })
             .on_pointer_pressed(move |_| {
-                click_sender(GnaMessage::SelectProcess(
+                click_sender(RammapMessage::SelectProcess(
                     first.clone(),
                     Some(info.clone()),
                 ));

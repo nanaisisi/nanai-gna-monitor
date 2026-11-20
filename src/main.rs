@@ -1,28 +1,23 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod gna_api;
+mod category;
+mod gna_service;
+mod gpu;
 mod memory;
 mod treemap;
 mod ui;
 
-use ui::app::GnaApp;
+use std::error::Error;
+use ui::app::RammapApp;
 use ui::types::AppInput;
 use windows_reactor::App;
-use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let gna_metrics = match gna_api::get_all_gna_usage() {
-        Ok(metrics) => {
-            println!("[INFO] Successfully initialized GNA monitoring. Total Usage: {}", format_bytes(metrics.total_gna_usage_bytes));
-            Some(metrics)
-        },
-        Err(e) => {
-            // Handle the DLL failure gracefully and report it to the user/log.
-            eprintln!("[ERROR] Failed to initialize GNA monitoring API: {}. The application will run in placeholder mode.", e);
-            None
-        }
-    };
+    println!("Starting nanai-gna-monitor (Intel GNA & System Hardware Monitor)...");
 
-    App::run_component::<GnaApp>(AppInput)?;
+    let status = gna_service::detect_gna_status();
+    println!("[INFO] GNA Status: {:?}", status);
+
+    App::run_component::<RammapApp>(AppInput)?;
     Ok(())
 }

@@ -2,11 +2,11 @@ use super::content_core::{
     group_info, group_metric_bytes, group_metric_value, metric_bytes, metric_value,
 };
 use crate::category::{classify_process, group_by_category, group_by_name};
-use crate::memory::{format_bytes, ProcessMemoryEntry};
-use crate::treemap::{layout_treemap, Rect, TreemapItem};
-use crate::ui::app_core::GnaApp;
+use crate::memory::{ProcessMemoryEntry, format_bytes};
+use crate::treemap::{Rect, TreemapItem, layout_treemap};
+use crate::ui::app_core::RammapApp;
 use crate::ui::theme::{color_for_category, wrap_canvas};
-use crate::ui::types::{GroupMode, GnaMessage};
+use crate::ui::types::{GroupMode, RammapMessage};
 use windows_reactor::*;
 
 const CANVAS_WIDTH: f64 = 1000.0;
@@ -21,8 +21,8 @@ fn bounds() -> Rect {
     }
 }
 
-pub(super) fn individual_treemap<S: Fn(GnaMessage) + Clone + 'static>(
-    app: &GnaApp,
+pub(super) fn individual_treemap<S: Fn(RammapMessage) + Clone + 'static>(
+    app: &RammapApp,
     sender: S,
     processes: Vec<ProcessMemoryEntry>,
 ) -> View {
@@ -74,7 +74,7 @@ pub(super) fn individual_treemap<S: Fn(GnaMessage) + Clone + 'static>(
             .canvas_left(node.rect.x)
             .canvas_top(node.rect.y)
             .on_pointer_pressed(move |_| {
-                click_sender(GnaMessage::SelectProcess(
+                click_sender(RammapMessage::SelectProcess(
                     Some(selected_process.clone()),
                     None,
                 ));
@@ -95,8 +95,8 @@ pub(super) fn individual_treemap<S: Fn(GnaMessage) + Clone + 'static>(
     )
 }
 
-pub(super) fn grouped_treemap<S: Fn(GnaMessage) + Clone + 'static>(
-    app: &GnaApp,
+pub(super) fn grouped_treemap<S: Fn(RammapMessage) + Clone + 'static>(
+    app: &RammapApp,
     sender: S,
     processes: Vec<ProcessMemoryEntry>,
 ) -> View {
@@ -153,7 +153,7 @@ pub(super) fn grouped_treemap<S: Fn(GnaMessage) + Clone + 'static>(
             .canvas_left(node.rect.x)
             .canvas_top(node.rect.y)
             .on_pointer_pressed(move |_| {
-                click_sender(GnaMessage::SelectProcess(
+                click_sender(RammapMessage::SelectProcess(
                     first.clone(),
                     Some(info.clone()),
                 ));

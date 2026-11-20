@@ -28,14 +28,14 @@ impl ProcessCategory {
 
     pub fn base_hue(&self) -> f64 {
         match self {
-            ProcessCategory::Browser => 210.0,      // Blue
-            ProcessCategory::Development => 275.0,  // Purple
-            ProcessCategory::System => 200.0,       // Slate / Cool Grey
-            ProcessCategory::Communication => 160.0,// Teal / Cyan
-            ProcessCategory::Media => 330.0,        // Pink / Magenta
-            ProcessCategory::Gaming => 120.0,       // Green
-            ProcessCategory::App => 30.0,           // Amber / Orange
-            ProcessCategory::Other => 45.0,         // Muted Gold
+            ProcessCategory::Browser => 210.0,       // Blue
+            ProcessCategory::Development => 275.0,   // Purple
+            ProcessCategory::System => 200.0,        // Slate / Cool Grey
+            ProcessCategory::Communication => 160.0, // Teal / Cyan
+            ProcessCategory::Media => 330.0,         // Pink / Magenta
+            ProcessCategory::Gaming => 120.0,        // Green
+            ProcessCategory::App => 30.0,            // Amber / Orange
+            ProcessCategory::Other => 45.0,          // Muted Gold
         }
     }
 }
@@ -168,10 +168,14 @@ pub struct ProcessGroup<T> {
     pub items: Vec<T>,
 }
 
-pub fn group_by_name(entries: &[crate::memory::ProcessMemoryEntry]) -> Vec<ProcessGroup<crate::memory::ProcessMemoryEntry>> {
+pub fn group_by_name(
+    entries: &[crate::memory::ProcessMemoryEntry],
+) -> Vec<ProcessGroup<crate::memory::ProcessMemoryEntry>> {
     let mut map: HashMap<String, Vec<crate::memory::ProcessMemoryEntry>> = HashMap::new();
     for entry in entries {
-        map.entry(entry.name.clone()).or_default().push(entry.clone());
+        map.entry(entry.name.clone())
+            .or_default()
+            .push(entry.clone());
     }
 
     let mut groups = Vec::new();
@@ -203,7 +207,9 @@ pub fn group_by_name(entries: &[crate::memory::ProcessMemoryEntry]) -> Vec<Proce
     groups
 }
 
-pub fn group_by_category(entries: &[crate::memory::ProcessMemoryEntry]) -> Vec<ProcessGroup<crate::memory::ProcessMemoryEntry>> {
+pub fn group_by_category(
+    entries: &[crate::memory::ProcessMemoryEntry],
+) -> Vec<ProcessGroup<crate::memory::ProcessMemoryEntry>> {
     let mut map: HashMap<ProcessCategory, Vec<crate::memory::ProcessMemoryEntry>> = HashMap::new();
     for entry in entries {
         let cat = classify_process(&entry.name);

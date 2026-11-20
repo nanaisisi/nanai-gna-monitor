@@ -61,9 +61,18 @@ impl RammapApp {
 
     fn header<S: Fn(RammapMessage) + Clone + 'static>(&self, send: S) -> View {
         let title = TextBlock::new()
-            .text("Nanai Lite Rammap (WizTree + GPU Edition)")
+            .text("Nanai GNA Monitor (Intel GNA 3.0 NPU & Hardware Edition)")
             .font_size(22.0)
             .font_weight(FontWeight::BOLD);
+        let gna_status = crate::gna_service::detect_gna_status();
+        let gna_badge = TextBlock::new()
+            .text(format!("  [{}]", gna_status.description))
+            .font_size(14.0)
+            .foreground(Color::argb(255, 70, 160, 245));
+        let title_row = StackPanel::new()
+            .orientation(Orientation::Horizontal)
+            .spacing(8.0)
+            .children((title, gna_badge));
         let actions = StackPanel::new()
             .orientation(Orientation::Horizontal)
             .spacing(8.0)
@@ -79,7 +88,7 @@ impl RammapApp {
                 self.message_button(self.metric_label(), RammapMessage::ToggleMetric, send),
             ));
         StackPanel::new().spacing(4.0).children((
-            title,
+            title_row,
             TextBlock::new().text(self.subtitle()).font_size(12.0),
             actions,
         ))
@@ -108,10 +117,21 @@ impl RammapApp {
         };
         match self.tab {
             MemoryTab::SystemRam => format!(
-                "Gna capacity butes: {}",
-                format_bytes(self.summary.total_gna_capacity_bytes)
+                "Processes: {} | Physical RAM: {} (Used: {} / {}%) | Commit: {} / {}",
+                self.summary.process_count,
+                format_bytes(self.summary.total_phys_bytes),
+                format_bytes(self.summary.used_phys_bytes),
+                self.summary.memory_load_pct,
+                format_bytes(self.summary.commit_total_bytes),
+                format_bytes(self.summary.commit_limit_bytes)
             ),
-            MemoryTab::GpuVram => format!("Processes: {} | {}", self.summary.total_gna_capacity_bytes, gpu),
+            MemoryTab::GpuVram => {
+                let gna = crate::gna_service::detect_gna_status();
+                format!(
+                    "Processes: {} | {} | NPU: {}",
+                    self.summary.process_count, gpu, gna.description
+                )
+            }
         }
     }
 
@@ -170,8 +190,10 @@ impl RammapApp {
                 p.pid,
                 p.name,
                 classify_process(&p.name).label(),
-                format_bytes(p.pid.into()),
-                format_bytes(p.gna_usage_bytes.into())
+                format_bytes(p.working_set_bytes),
+                format_bytes(p.private_bytes),
+                format_bytes(p.gpu_dedicated_bytes),
+                format_bytes(p.gpu_shared_bytes)
             )
         } else {
             "💡 Click any 2D tile or table row to inspect details. Switch between System RAM and GPU VRAM tabs above.".to_string()
