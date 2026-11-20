@@ -58,15 +58,21 @@ pub fn get_gna_status() -> GnaHardwareStatus {
     } else if is_detected {
         "Intel GNA Device Detected (Session Open)".to_string()
     } else if is_loaded {
-        "GNA Runtime Library Loaded (Standby)".to_string()
+        "GNA Runtime Library Loaded (Device not found)".to_string()
     } else {
-        "GNA Hardware / Driver Standby".to_string()
+        "GNA Hardware / Driver not found".to_string()
+    };
+
+    let device_name = if is_detected {
+        "Intel Gaussian & Neural Accelerator 3.0 (Device ID: 0x474E)".to_string()
+    } else {
+        "Intel GNA Device (not found)".to_string()
     };
 
     GnaHardwareStatus {
         is_detected,
         is_loaded,
-        device_name: "Intel Gaussian & Neural Accelerator 3.0 (Device ID: 0x474E)".to_string(),
+        device_name,
         description,
         completed_inferences: state.completed_inferences,
         avg_latency_ms: state.avg_latency_ms,
@@ -109,6 +115,6 @@ pub fn run_gna_benchmark() {
             elapsed_ms, ips, avg_latency
         );
     } else {
-        state.last_test_status = "Cannot run: GNA device not ready".to_string();
+        state.last_test_status = "Cannot run: GNA device not found".to_string();
     }
 }
