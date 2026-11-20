@@ -14,9 +14,8 @@ windows = { version = "0.62.2", features = [
     "Win32_System_LibraryLoader",
     "Win32_Graphics_Dxgi",
 ] }
-windows-reactor = "0.100.0"
-once_cell = "1.20"
 nanai-gna-dll-load = { git = "https://github.com/nanaisisi/nanai-gna-dll-load.git" }
+windows-reactor = { git = "https://github.com/microsoft/windows-rs", branch = "master" }
 
 [build-dependencies]
-windows-reactor-setup = "0.100.0"
+windows-reactor-setup = { git = "https://github.com/microsoft/windows-rs", branch = "master" }

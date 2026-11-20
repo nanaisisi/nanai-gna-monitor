@@ -41,6 +41,7 @@ fn process_header() -> View {
                     .font_weight(FontWeight::BOLD),
             )),
     )
+    .into()
 }
 
 fn group_header() -> View {
@@ -79,6 +80,7 @@ fn group_header() -> View {
                     .font_weight(FontWeight::BOLD),
             )),
     )
+    .into()
 }
 
 pub(super) fn individual_list<S: Fn(RammapMessage) + Clone + 'static>(
@@ -133,16 +135,17 @@ pub(super) fn individual_list<S: Fn(RammapMessage) + Clone + 'static>(
                             .width(100.0),
                     )),
             );
-        rows.push(KeyedView::new(pid, row));
+        rows.push(row.into());
     }
     let content = ScrollViewer::new()
         .vertical_scroll_bar_visibility(ScrollBarVisibility::Auto)
         .horizontal_scroll_bar_visibility(ScrollBarVisibility::Auto)
         .height(500.0)
-        .content(StackPanel::new().spacing(2.0).keyed_children(rows));
+        .content(StackPanel::new().spacing(2.0).children(rows));
     StackPanel::new()
         .spacing(4.0)
         .children((process_header(), content))
+        .into()
 }
 
 pub(super) fn grouped_list<S: Fn(RammapMessage) + Clone + 'static>(
@@ -200,14 +203,15 @@ pub(super) fn grouped_list<S: Fn(RammapMessage) + Clone + 'static>(
                         TextBlock::new().text(group.category.label()).width(130.0),
                     )),
             );
-        rows.push(KeyedView::new(key, row));
+        rows.push(row.into());
     }
     let content = ScrollViewer::new()
         .vertical_scroll_bar_visibility(ScrollBarVisibility::Auto)
         .horizontal_scroll_bar_visibility(ScrollBarVisibility::Auto)
         .height(500.0)
-        .content(StackPanel::new().spacing(2.0).keyed_children(rows));
+        .content(StackPanel::new().spacing(2.0).children(rows));
     StackPanel::new()
         .spacing(4.0)
         .children((group_header(), content))
+        .into()
 }

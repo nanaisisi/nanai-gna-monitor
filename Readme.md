@@ -1,7 +1,7 @@
 # nanai-gna-monitor
 
 AI生成によるGna負荷可視化ツールです。  
-タスクマネージャー程度の低負荷で動作する、Gnaの負荷表示GUIとして作成されています。
+[nanai-lite-rammap](https://github.com/nanaisisi/nanai-lite-rammap) から派生し、タスクマネージャー程度の低負荷で動作する、Gnaの負荷表示GUIとして作成されています。
 
 GUIフレームワークには、Microsoft公式系のアプローチに近い **windows-reactor** を採用しています。
 

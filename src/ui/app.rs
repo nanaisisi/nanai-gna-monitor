@@ -39,6 +39,7 @@ impl Component for RammapApp {
             .spacing(10.0)
             .margin(Thickness::uniform(14.0))
             .children((self.header(send.clone()), self.search_panel(send), content))
+            .into()
     }
 }
 
@@ -93,11 +94,14 @@ impl RammapApp {
                 self.group_button("🔹 Individual", GroupMode::Individual, send.clone()),
                 self.message_button(self.metric_label(), RammapMessage::ToggleMetric, send),
             ));
-        StackPanel::new().spacing(4.0).children((
-            title_row,
-            TextBlock::new().text(self.subtitle()).font_size(12.0),
-            actions,
-        ))
+        StackPanel::new()
+            .spacing(4.0)
+            .children((
+                title_row,
+                TextBlock::new().text(self.subtitle()).font_size(12.0),
+                actions,
+            ))
+            .into()
     }
 
     fn subtitle(&self) -> String {
@@ -167,6 +171,7 @@ impl RammapApp {
         Button::new()
             .on_click(move || send(message.clone()))
             .content(TextBlock::new().text(text))
+            .into()
     }
 
     fn tab_button<S: Fn(RammapMessage) + Clone + 'static>(
@@ -216,7 +221,9 @@ impl RammapApp {
             .placeholder_text("Filter PID, name or category...")
             .text(self.search_query.clone())
             .width(280.0)
-            .on_text_changed(move |text: String| search_send(RammapMessage::SearchChanged(text)));
+            .on_text_changed(move |text: std::rc::Rc<str>| {
+                search_send(RammapMessage::SearchChanged(text.to_string()))
+            });
         StackPanel::new()
             .orientation(Orientation::Horizontal)
             .spacing(12.0)
@@ -227,5 +234,6 @@ impl RammapApp {
                     .font_size(12.0)
                     .vertical_alignment(VerticalAlignment::Center),
             ))
+            .into()
     }
 }

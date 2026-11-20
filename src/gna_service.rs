@@ -1,6 +1,5 @@
 use nanai_gna_dll_load::{GnaDevice, GnaLibrary};
-use once_cell::sync::Lazy;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, LazyLock, Mutex};
 
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
@@ -24,7 +23,7 @@ pub struct GnaSessionState {
     pub last_test_status: String,
 }
 
-static GNA_SESSION: Lazy<Arc<Mutex<GnaSessionState>>> = Lazy::new(|| {
+static GNA_SESSION: LazyLock<Arc<Mutex<GnaSessionState>>> = LazyLock::new(|| {
     let mut lib_opt = None;
     let mut dev_opt = None;
     let mut status_msg = "Not tested yet".to_string();

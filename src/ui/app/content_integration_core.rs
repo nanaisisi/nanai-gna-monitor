@@ -85,13 +85,14 @@ pub(super) fn individual_treemap<S: Fn(RammapMessage) + Clone + 'static>(
                     .font_size(if node.rect.height > 35.0 { 11.0 } else { 9.5 })
                     .margin(Thickness::xy(3.0, 2.0)),
             );
-        elements.push(KeyedView::new(pid, block));
+        elements.push(block.into());
     }
     wrap_canvas(
         Canvas::new()
             .width(CANVAS_WIDTH)
             .height(CANVAS_HEIGHT)
-            .keyed_children(elements),
+            .children(elements)
+            .into(),
     )
 }
 
@@ -164,12 +165,13 @@ pub(super) fn grouped_treemap<S: Fn(RammapMessage) + Clone + 'static>(
                     .font_size(if node.rect.height > 38.0 { 11.5 } else { 9.5 })
                     .margin(Thickness::xy(4.0, 3.0)),
             );
-        elements.push(KeyedView::new(key, block));
+        elements.push(block.into());
     }
     wrap_canvas(
         Canvas::new()
             .width(CANVAS_WIDTH)
             .height(CANVAS_HEIGHT)
-            .keyed_children(elements),
+            .children(elements)
+            .into(),
     )
 }
