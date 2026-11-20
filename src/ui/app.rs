@@ -64,7 +64,7 @@ impl RammapApp {
             .text("Nanai GNA Monitor (Intel GNA 3.0 NPU & Hardware Edition)")
             .font_size(22.0)
             .font_weight(FontWeight::BOLD);
-        let gna_status = crate::gna_service::detect_gna_status();
+        let gna_status = crate::gna_service::get_gna_status();
         let gna_badge = TextBlock::new()
             .text(format!("  [{}]", gna_status.description))
             .font_size(14.0)
@@ -77,8 +77,14 @@ impl RammapApp {
             .orientation(Orientation::Horizontal)
             .spacing(8.0)
             .children((
+                self.tab_button("🧠 Intel GNA NPU", MemoryTab::GnaNpu, send.clone()),
                 self.tab_button("💻 System RAM", MemoryTab::SystemRam, send.clone()),
                 self.tab_button("🎮 GPU VRAM", MemoryTab::GpuVram, send.clone()),
+                self.message_button(
+                    "⚡ Run GNA Benchmark",
+                    RammapMessage::RunGnaBenchmark,
+                    send.clone(),
+                ),
                 self.message_button("🔄 Refresh", RammapMessage::Refresh, send.clone()),
                 self.mode_button("📊 2D Tree", ViewMode::Treemap, send.clone()),
                 self.mode_button("📋 List", ViewMode::List, send.clone()),
@@ -116,6 +122,13 @@ impl RammapApp {
                 .join(" | ")
         };
         match self.tab {
+            MemoryTab::GnaNpu => {
+                let gna = crate::gna_service::get_gna_status();
+                format!(
+                    "Intel GNA 3.0 NPU | State: {} | Bench: {}",
+                    gna.description, gna.last_test_status
+                )
+            }
             MemoryTab::SystemRam => format!(
                 "Processes: {} | Physical RAM: {} (Used: {} / {}%) | Commit: {} / {}",
                 self.summary.process_count,
@@ -126,7 +139,7 @@ impl RammapApp {
                 format_bytes(self.summary.commit_limit_bytes)
             ),
             MemoryTab::GpuVram => {
-                let gna = crate::gna_service::detect_gna_status();
+                let gna = crate::gna_service::get_gna_status();
                 format!(
                     "Processes: {} | {} | NPU: {}",
                     self.summary.process_count, gpu, gna.description

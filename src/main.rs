@@ -15,7 +15,7 @@ use windows_reactor::App;
 fn main() -> Result<(), Box<dyn Error>> {
     println!("Starting nanai-gna-monitor (Intel GNA & System Hardware Monitor)...");
 
-    let status = gna_service::detect_gna_status();
+    let status = gna_service::get_gna_status();
     println!("[INFO] GNA Status: {:?}", status);
 
     App::run_component::<RammapApp>(AppInput)?;

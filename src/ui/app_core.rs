@@ -37,7 +37,7 @@ impl RammapApp {
         let gpu_adapters = collect_gpu_adapters();
         let processes = fetch_all_processes(&gpu_adapters);
         Self {
-            tab: MemoryTab::SystemRam,
+            tab: MemoryTab::GnaNpu,
             summary,
             gpu_adapters,
             processes,
@@ -61,6 +61,9 @@ impl RammapApp {
                     self.selected_process = self.processes.iter().find(|p| p.pid == pid).cloned();
                 }
             }
+            RammapMessage::RunGnaBenchmark => {
+                crate::gna_service::run_gna_benchmark();
+            }
             RammapMessage::SetTab(tab) => {
                 self.tab = tab;
                 if tab == MemoryTab::GpuVram
@@ -80,7 +83,7 @@ impl RammapApp {
             RammapMessage::SetGroupMode(mode) => self.group_mode = mode,
             RammapMessage::ToggleMetric => {
                 self.metric = match self.tab {
-                    MemoryTab::SystemRam => match self.metric {
+                    MemoryTab::GnaNpu | MemoryTab::SystemRam => match self.metric {
                         MemoryMetric::WorkingSet => MemoryMetric::PrivateWs,
                         _ => MemoryMetric::WorkingSet,
                     },

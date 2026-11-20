@@ -36,6 +36,12 @@ pub(super) fn group_metric_bytes(
 
 pub(super) fn group_info(tab: MemoryTab, group: &ProcessGroup<ProcessMemoryEntry>) -> String {
     match tab {
+        MemoryTab::GnaNpu => format!(
+            "{} | Count: {} | Total WS: {}",
+            group.title,
+            group.items.len(),
+            format_bytes(group.total_working_set),
+        ),
         MemoryTab::SystemRam => format!(
             "{} | Total WS: {} | Total Private: {} | Count: {}",
             group.title,

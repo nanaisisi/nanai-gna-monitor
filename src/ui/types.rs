@@ -5,6 +5,7 @@ pub struct AppInput;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MemoryTab {
+    GnaNpu,
     SystemRam,
     GpuVram,
 }
@@ -33,6 +34,7 @@ pub enum MemoryMetric {
 #[derive(Clone)]
 pub enum RammapMessage {
     Refresh,
+    RunGnaBenchmark,
     SetTab(MemoryTab),
     SearchChanged(String),
     SetViewMode(ViewMode),
