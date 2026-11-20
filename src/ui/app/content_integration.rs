@@ -24,18 +24,6 @@ fn process_header() -> View {
                     .width(130.0)
                     .font_weight(FontWeight::BOLD),
                 TextBlock::new()
-                    .text("Working Set")
-                    .width(100.0)
-                    .font_weight(FontWeight::BOLD),
-                TextBlock::new()
-                    .text("Private WS")
-                    .width(100.0)
-                    .font_weight(FontWeight::BOLD),
-                TextBlock::new()
-                    .text("GPU VRAM")
-                    .width(100.0)
-                    .font_weight(FontWeight::BOLD),
-                TextBlock::new()
                     .text("GNA / NPU")
                     .width(100.0)
                     .font_weight(FontWeight::BOLD),
@@ -57,22 +45,6 @@ fn group_header() -> View {
                 TextBlock::new()
                     .text("Count")
                     .width(60.0)
-                    .font_weight(FontWeight::BOLD),
-                TextBlock::new()
-                    .text("Total WS")
-                    .width(100.0)
-                    .font_weight(FontWeight::BOLD),
-                TextBlock::new()
-                    .text("Total Private")
-                    .width(100.0)
-                    .font_weight(FontWeight::BOLD),
-                TextBlock::new()
-                    .text("Total VRAM")
-                    .width(100.0)
-                    .font_weight(FontWeight::BOLD),
-                TextBlock::new()
-                    .text("Total Shared")
-                    .width(100.0)
                     .font_weight(FontWeight::BOLD),
                 TextBlock::new()
                     .text("Category")
@@ -117,15 +89,6 @@ pub(super) fn individual_list<S: Fn(RammapMessage) + Clone + 'static>(
                         TextBlock::new().text(pid.to_string()).width(60.0),
                         TextBlock::new().text(p.name).width(190.0),
                         TextBlock::new().text(category.label()).width(130.0),
-                        TextBlock::new()
-                            .text(format_bytes(p.working_set_bytes))
-                            .width(100.0),
-                        TextBlock::new()
-                            .text(format_bytes(p.private_bytes))
-                            .width(100.0),
-                        TextBlock::new()
-                            .text(format_bytes(p.gpu_dedicated_bytes))
-                            .width(100.0),
                         TextBlock::new()
                             .text(if p.gna_usage_bytes > 0 {
                                 format_bytes(p.gna_usage_bytes)
@@ -188,18 +151,6 @@ pub(super) fn grouped_list<S: Fn(RammapMessage) + Clone + 'static>(
                         TextBlock::new()
                             .text(format!("{} inst", group.items.len()))
                             .width(60.0),
-                        TextBlock::new()
-                            .text(format_bytes(group.total_working_set))
-                            .width(100.0),
-                        TextBlock::new()
-                            .text(format_bytes(group.total_private))
-                            .width(100.0),
-                        TextBlock::new()
-                            .text(format_bytes(group.total_gpu_dedicated))
-                            .width(100.0),
-                        TextBlock::new()
-                            .text(format_bytes(group.total_gpu_shared))
-                            .width(100.0),
                         TextBlock::new().text(group.category.label()).width(130.0),
                     )),
             );

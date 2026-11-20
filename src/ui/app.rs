@@ -79,8 +79,6 @@ impl RammapApp {
             .spacing(8.0)
             .children((
                 self.tab_button("🧠 Intel GNA NPU", MemoryTab::GnaNpu, send.clone()),
-                self.tab_button("💻 System RAM", MemoryTab::SystemRam, send.clone()),
-                self.tab_button("🎮 GPU VRAM", MemoryTab::GpuVram, send.clone()),
                 self.message_button(
                     "⚡ Run GNA Benchmark",
                     RammapMessage::RunGnaBenchmark,
@@ -105,59 +103,18 @@ impl RammapApp {
     }
 
     fn subtitle(&self) -> String {
-        let gpu = if self.gpu_adapters.is_empty() {
-            "GPU: No DirectX 11/12 GPU detected".to_string()
-        } else {
-            self.gpu_adapters
-                .iter()
-                .enumerate()
-                .map(|(i, g)| {
-                    format!(
-                        "GPU {}: {} | Dedicated VRAM: {} / {} | Shared: {} / {}",
-                        i,
-                        g.name,
-                        format_bytes(g.dedicated_usage_bytes),
-                        format_bytes(g.dedicated_vram_bytes),
-                        format_bytes(g.shared_usage_bytes),
-                        format_bytes(g.shared_ram_bytes)
-                    )
-                })
-                .collect::<Vec<_>>()
-                .join(" | ")
-        };
-        match self.tab {
-            MemoryTab::GnaNpu => {
-                let gna = crate::gna_service::get_gna_status();
-                format!(
-                    "Intel GNA 3.0 NPU | State: {} | Bench: {}",
-                    gna.description, gna.last_test_status
-                )
-            }
-            MemoryTab::SystemRam => format!(
-                "Processes: {} | Physical RAM: {} (Used: {} / {}%) | Commit: {} / {}",
-                self.summary.process_count,
-                format_bytes(self.summary.total_phys_bytes),
-                format_bytes(self.summary.used_phys_bytes),
-                self.summary.memory_load_pct,
-                format_bytes(self.summary.commit_total_bytes),
-                format_bytes(self.summary.commit_limit_bytes)
-            ),
-            MemoryTab::GpuVram => {
-                let gna = crate::gna_service::get_gna_status();
-                format!(
-                    "Processes: {} | {} | NPU: {}",
-                    self.summary.process_count, gpu, gna.description
-                )
-            }
-        }
+        let gna = crate::gna_service::get_gna_status();
+        format!(
+            "Intel GNA 3.0 NPU | State: {} | Bench: {}",
+            gna.description, gna.last_test_status
+        )
     }
 
     fn metric_label(&self) -> &'static str {
         match self.metric {
             MemoryMetric::WorkingSet => "Metric: Working Set",
             MemoryMetric::PrivateWs => "Metric: Private (Commit)",
-            MemoryMetric::GpuDedicated => "Metric: Dedicated VRAM",
-            MemoryMetric::GpuShared => "Metric: Shared GPU Memory",
+            _ => "Metric: Working Set",
         }
     }
 
@@ -204,17 +161,18 @@ impl RammapApp {
             format!("🎯 Selected Group: {}", title)
         } else if let Some(ref p) = self.selected_process {
             format!(
-                "🎯 [{}] {} ({}) | WS: {} | Private: {} | GPU VRAM: {} | GPU Shared: {}",
+                "🎯 [{}] {} ({}) | GNA / NPU: {}",
                 p.pid,
                 p.name,
                 classify_process(&p.name).label(),
-                format_bytes(p.working_set_bytes),
-                format_bytes(p.private_bytes),
-                format_bytes(p.gpu_dedicated_bytes),
-                format_bytes(p.gpu_shared_bytes)
+                if p.gna_usage_bytes > 0 {
+                    format_bytes(p.gna_usage_bytes)
+                } else {
+                    "-".to_string()
+                }
             )
         } else {
-            "💡 Click any 2D tile or table row to inspect details. Switch between System RAM and GPU VRAM tabs above.".to_string()
+            "💡 Click any 2D tile or table row to inspect details.".to_string()
         };
         let search_send = send.clone();
         let search = TextBox::new()

@@ -2,25 +2,15 @@ use crate::category::ProcessGroup;
 use crate::memory::{ProcessMemoryEntry, format_bytes};
 use crate::ui::types::{MemoryMetric, MemoryTab};
 
-pub(super) fn metric_value(p: &ProcessMemoryEntry, metric: MemoryMetric) -> f64 {
-    match metric {
-        MemoryMetric::WorkingSet => p.working_set_bytes as f64,
-        MemoryMetric::PrivateWs => p.private_bytes as f64,
-        MemoryMetric::GpuDedicated => p.gpu_dedicated_bytes as f64,
-        MemoryMetric::GpuShared => p.gpu_shared_bytes as f64,
-    }
+pub(super) fn metric_value(p: &ProcessMemoryEntry, _metric: MemoryMetric) -> f64 {
+    p.gna_usage_bytes as f64
 }
 
 pub(super) fn group_metric_value(
     group: &ProcessGroup<ProcessMemoryEntry>,
-    metric: MemoryMetric,
+    _metric: MemoryMetric,
 ) -> f64 {
-    match metric {
-        MemoryMetric::WorkingSet => group.total_working_set as f64,
-        MemoryMetric::PrivateWs => group.total_private as f64,
-        MemoryMetric::GpuDedicated => group.total_gpu_dedicated as f64,
-        MemoryMetric::GpuShared => group.total_gpu_shared as f64,
-    }
+    group.items.iter().map(|p| p.gna_usage_bytes).sum::<u64>() as f64
 }
 
 pub(super) fn metric_bytes(p: &ProcessMemoryEntry, metric: MemoryMetric) -> u64 {
@@ -37,10 +27,10 @@ pub(super) fn group_metric_bytes(
 pub(super) fn group_info(tab: MemoryTab, group: &ProcessGroup<ProcessMemoryEntry>) -> String {
     match tab {
         MemoryTab::GnaNpu => format!(
-            "{} | Count: {} | Total WS: {}",
+            "{} | Count: {} | Total GNA: {}",
             group.title,
             group.items.len(),
-            format_bytes(group.total_working_set),
+            format_bytes(group.items.iter().map(|p| p.gna_usage_bytes).sum()),
         ),
         MemoryTab::SystemRam => format!(
             "{} | Total WS: {} | Total Private: {} | Count: {}",
