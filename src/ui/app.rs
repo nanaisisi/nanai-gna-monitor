@@ -30,7 +30,7 @@ impl Component for RammapApp {
         let send = {
             let sender = sender.clone();
             move |message| {
-                sender.send(message);
+                let _ = sender.send(message);
             }
         };
         let content =

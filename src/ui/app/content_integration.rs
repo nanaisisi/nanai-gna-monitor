@@ -124,7 +124,6 @@ pub(super) fn grouped_list<S: Fn(RammapMessage) + Clone + 'static>(
     sort_groups(&mut groups, app.metric);
     let mut rows = Vec::new();
     for group in groups {
-        let key = group.key.clone();
         let selected = app.selected_group_title.as_ref() == Some(&group.title);
         let click_sender = sender.clone();
         let first = group.items.first().cloned();

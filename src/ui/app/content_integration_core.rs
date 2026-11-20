@@ -117,7 +117,6 @@ pub(super) fn grouped_treemap<S: Fn(RammapMessage) + Clone + 'static>(
 
     for (index, node) in layout_treemap(&items, bounds()).into_iter().enumerate() {
         let group = node.data;
-        let key = group.key.clone();
         let selected = app.selected_group_title.as_ref() == Some(&group.title);
         let background = if selected {
             Color::argb(255, 240, 160, 40)

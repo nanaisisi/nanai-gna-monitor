@@ -10,6 +10,7 @@ use windows::Win32::System::Threading::{OpenProcess, PROCESS_QUERY_LIMITED_INFOR
 use windows::core::Interface;
 use windows::core::s;
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Default)]
 pub struct GpuAdapterInfo {
     pub name: String,
