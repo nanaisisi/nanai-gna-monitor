@@ -1,5 +1,6 @@
 use nanai_gna_dll_load::{
-    GnaDevice, GnaLibrary, GnaLoadTestConfig, GnaLoadTester, inspect_system_gna_state,
+    GnaDevice, GnaLibrary, GnaLoadTestConfig, GnaLoadTester, detect_gna_pdh_counter_path,
+    inspect_system_gna_state,
 };
 use std::sync::{
     Arc, LazyLock, Mutex,
@@ -85,6 +86,8 @@ struct GnaSessionState {
 
 static LOAD_MODE_ACTIVE: AtomicBool = AtomicBool::new(false);
 static LOAD_MODE_CANCEL: AtomicBool = AtomicBool::new(false);
+static GNA_PDH_PATH: LazyLock<Option<String>> =
+    LazyLock::new(|| detect_gna_pdh_counter_path().ok().flatten());
 
 static GNA_SESSION: LazyLock<Arc<Mutex<GnaSessionState>>> = LazyLock::new(|| {
     let mut lib_opt = None;
@@ -116,7 +119,7 @@ pub fn is_load_mode_active() -> bool {
 }
 
 pub fn get_gna_status() -> GnaHardwareStatus {
-    let sys_util = inspect_system_gna_state(None).ok();
+    let sys_util = inspect_system_gna_state(GNA_PDH_PATH.as_deref()).ok();
     let active_process_count = sys_util
         .as_ref()
         .map(|u| u.active_gna_processes().len())
@@ -125,6 +128,7 @@ pub fn get_gna_status() -> GnaHardwareStatus {
         .as_ref()
         .map(|u| u.has_external_processes())
         .unwrap_or(false);
+    let pdh_usage = sys_util.as_ref().and_then(|u| u.pdh_counter_value());
 
     let state = GNA_SESSION.lock().unwrap();
     let is_detected = state.device.is_some();
@@ -159,7 +163,11 @@ pub fn get_gna_status() -> GnaHardwareStatus {
         completed_inferences: state.completed_inferences,
         avg_latency_ms: state.avg_latency_ms,
         throughput_ips: state.throughput_ips,
-        hw_usage_percentage: state.hw_usage_percentage,
+        hw_usage_percentage: if state.hw_usage_percentage > 0.0 {
+            state.hw_usage_percentage
+        } else {
+            pdh_usage.unwrap_or(0.0)
+        },
         active_process_count,
         has_external_processes,
         is_load_mode,
