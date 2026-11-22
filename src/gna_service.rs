@@ -1,7 +1,6 @@
 use nanai_gna_dll_load::{
-    GnaDevice, GnaLibrary, GnaLoadTestConfig, GnaLoadTester, GnaModelBuilder, GnaRequestConfig,
-    inspect_system_gna_state,
-    types::{Gna2AccelerationMode, Gna2DataType, Gna2Tensor},
+    GnaDevice, GnaLibrary, GnaLoadTestConfig, GnaLoadTester, inspect_system_gna_state,
+    publish_self_gna_allocated_bytes,
 };
 use std::sync::{
     Arc, LazyLock, Mutex,
@@ -120,11 +119,11 @@ pub fn get_gna_status() -> GnaHardwareStatus {
     let sys_util = inspect_system_gna_state(None).ok();
     let active_process_count = sys_util
         .as_ref()
-        .map(|u| u.active_gna_processes.len())
+        .map(|u| u.active_gna_processes().len())
         .unwrap_or(0);
     let has_external_processes = sys_util
         .as_ref()
-        .map(|u| u.has_external_processes)
+        .map(|u| u.has_external_processes())
         .unwrap_or(false);
 
     let state = GNA_SESSION.lock().unwrap();
@@ -172,54 +171,9 @@ fn execute_gna_workload(
     device: &GnaDevice,
     config: GnaLoadTestConfig,
 ) -> Result<(usize, f64, f64, f64), String> {
-    const W: usize = 64;
-    const H: usize = 64;
-    const B: usize = 1;
-
-    let weights = vec![1_i16; W * H];
-    let inputs = [1_i16; W * B];
-    let biases = [0_i32; H];
-
-    let memory = device
-        .allocate_buffer(64 * 1024)
-        .map_err(|e| format!("Buffer alloc failed: {e}"))?;
-
-    let base = memory.as_raw_ptr() as *mut u8;
-    let inputs_ptr = base as *mut i16;
-    let outputs_ptr = unsafe { base.add(4096) } as *mut i32;
-    let weights_ptr = unsafe { base.add(8192) } as *mut i16;
-    let biases_ptr = unsafe { base.add(16384) } as *mut i32;
-
-    unsafe {
-        std::ptr::copy_nonoverlapping(inputs.as_ptr(), inputs_ptr, inputs.len());
-        std::ptr::copy_nonoverlapping(weights.as_ptr(), weights_ptr, weights.len());
-        std::ptr::copy_nonoverlapping(biases.as_ptr(), biases_ptr, biases.len());
-        std::ptr::write_bytes(outputs_ptr, 0, H * B);
-    }
-
-    let model = GnaModelBuilder::new()
-        .add_fully_connected_affine(
-            Gna2Tensor::d2(W as u32, B as u32, Gna2DataType::Int16, inputs_ptr as _),
-            Gna2Tensor::d2(H as u32, B as u32, Gna2DataType::Int32, outputs_ptr as _),
-            Gna2Tensor::d2(H as u32, W as u32, Gna2DataType::Int16, weights_ptr as _),
-            Gna2Tensor::d1(H as u32, Gna2DataType::Int32, biases_ptr as _),
-            None,
-        )
-        .build(device)
-        .map_err(|e| format!("Model compile failed: {e}"))?;
-
-    let mut request = GnaRequestConfig::create(device.library(), model.id())
-        .map_err(|e| format!("Request create failed: {e}"))?;
-    request
-        .set_operand_gna_buffer(0, 0, &memory)
-        .map_err(|e| format!("Set input failed: {e}"))?;
-    unsafe { request.set_operand_buffer(0, 1, outputs_ptr as _) }
-        .map_err(|e| format!("Set output failed: {e}"))?;
-    let _ = request.set_acceleration_mode(Gna2AccelerationMode::Auto);
-
-    let report = GnaLoadTester::new(config)
-        .run(&mut request)
+    let report = GnaLoadTester::run_default_workload(device, config)
         .map_err(|e| format!("Load test failed: {e}"))?;
+    let _ = publish_self_gna_allocated_bytes();
 
     let completed = report.completed_inferences();
     let ips = report.inferences_per_second();
