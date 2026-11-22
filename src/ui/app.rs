@@ -74,7 +74,7 @@ impl RammapApp {
             .orientation(Orientation::Horizontal)
             .spacing(8.0)
             .children((title, gna_badge));
-        let actions = StackPanel::new()
+        let gna_actions = StackPanel::new()
             .orientation(Orientation::Horizontal)
             .spacing(8.0)
             .children((
@@ -84,7 +84,21 @@ impl RammapApp {
                     RammapMessage::RunGnaBenchmark,
                     send.clone(),
                 ),
+                self.message_button(
+                    if gna_status.is_load_mode {
+                        "🔥 Load Mode: ON"
+                    } else {
+                        "🔥 Load Mode: OFF"
+                    },
+                    RammapMessage::ToggleGnaLoadMode,
+                    send.clone(),
+                ),
                 self.message_button("🔄 Refresh", RammapMessage::Refresh, send.clone()),
+            ));
+        let view_actions = StackPanel::new()
+            .orientation(Orientation::Horizontal)
+            .spacing(8.0)
+            .children((
                 self.mode_button("📊 2D Tree", ViewMode::Treemap, send.clone()),
                 self.mode_button("📋 List", ViewMode::List, send.clone()),
                 self.group_button("🗂️ By Name", GroupMode::ByName, send.clone()),
@@ -97,7 +111,8 @@ impl RammapApp {
             .children((
                 title_row,
                 TextBlock::new().text(self.subtitle()).font_size(12.0),
-                actions,
+                gna_actions,
+                view_actions,
             ))
             .into()
     }
@@ -105,11 +120,13 @@ impl RammapApp {
     fn subtitle(&self) -> String {
         let gna = crate::gna_service::get_gna_status();
         format!(
-            "Intel GNA 3.0 NPU ({}) | Detected: {} | Loaded: {} | State: {} | Inferences: {} ({:.2} ms, {:.1} IPS) | Bench: {}",
+            "Intel GNA 3.0 NPU ({}) | Detected: {} | Loaded: {} | HW Usage: {:.1}% | GNA Procs: {} (Ext: {}) | Inferences: {} ({:.2} ms, {:.1} IPS) | {}",
             gna.device_name,
             gna.is_detected,
             gna.is_loaded,
-            gna.description,
+            gna.hw_usage_percentage,
+            gna.active_process_count,
+            gna.has_external_processes,
             gna.completed_inferences,
             gna.avg_latency_ms,
             gna.throughput_ips,

@@ -160,8 +160,20 @@ pub fn collect_process_memory() -> Vec<ProcessMemoryEntry> {
         let _ = CloseHandle(snapshot);
     }
 
+    let gna_pids: std::collections::HashSet<u32> = nanai_gna_dll_load::detect_gna_processes()
+        .unwrap_or_default()
+        .into_iter()
+        .map(|p| p.pid)
+        .collect();
+
     // Default sort by Working Set descending
     entries.sort_by_key(|a| std::cmp::Reverse(a.working_set_bytes));
+
+    for entry in &mut entries {
+        if gna_pids.contains(&entry.pid) {
+            entry.gna_usage_bytes = entry.working_set_bytes.max(64 * 1024);
+        }
+    }
 
     entries
 }

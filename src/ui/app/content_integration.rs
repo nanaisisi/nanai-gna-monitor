@@ -6,53 +6,57 @@ use crate::ui::types::{GroupMode, RammapMessage};
 use windows_reactor::*;
 
 fn process_header() -> View {
-    Border::new().padding(Thickness::xy(8.0, 6.0)).content(
-        StackPanel::new()
-            .orientation(Orientation::Horizontal)
-            .spacing(16.0)
-            .children((
-                TextBlock::new()
-                    .text("PID")
-                    .width(60.0)
-                    .font_weight(FontWeight::BOLD),
-                TextBlock::new()
-                    .text("Process Name")
-                    .width(190.0)
-                    .font_weight(FontWeight::BOLD),
-                TextBlock::new()
-                    .text("Category")
-                    .width(130.0)
-                    .font_weight(FontWeight::BOLD),
-                TextBlock::new()
-                    .text("GNA / NPU")
-                    .width(100.0)
-                    .font_weight(FontWeight::BOLD),
-            )),
-    )
-    .into()
+    Border::new()
+        .padding(Thickness::xy(8.0, 6.0))
+        .content(
+            StackPanel::new()
+                .orientation(Orientation::Horizontal)
+                .spacing(16.0)
+                .children((
+                    TextBlock::new()
+                        .text("PID")
+                        .width(60.0)
+                        .font_weight(FontWeight::BOLD),
+                    TextBlock::new()
+                        .text("Process Name")
+                        .width(190.0)
+                        .font_weight(FontWeight::BOLD),
+                    TextBlock::new()
+                        .text("Category")
+                        .width(130.0)
+                        .font_weight(FontWeight::BOLD),
+                    TextBlock::new()
+                        .text("GNA / NPU")
+                        .width(100.0)
+                        .font_weight(FontWeight::BOLD),
+                )),
+        )
+        .into()
 }
 
 fn group_header() -> View {
-    Border::new().padding(Thickness::xy(8.0, 6.0)).content(
-        StackPanel::new()
-            .orientation(Orientation::Horizontal)
-            .spacing(16.0)
-            .children((
-                TextBlock::new()
-                    .text("Group / Category")
-                    .width(260.0)
-                    .font_weight(FontWeight::BOLD),
-                TextBlock::new()
-                    .text("Count")
-                    .width(60.0)
-                    .font_weight(FontWeight::BOLD),
-                TextBlock::new()
-                    .text("Category")
-                    .width(130.0)
-                    .font_weight(FontWeight::BOLD),
-            )),
-    )
-    .into()
+    Border::new()
+        .padding(Thickness::xy(8.0, 6.0))
+        .content(
+            StackPanel::new()
+                .orientation(Orientation::Horizontal)
+                .spacing(16.0)
+                .children((
+                    TextBlock::new()
+                        .text("Group / Category")
+                        .width(260.0)
+                        .font_weight(FontWeight::BOLD),
+                    TextBlock::new()
+                        .text("Count")
+                        .width(60.0)
+                        .font_weight(FontWeight::BOLD),
+                    TextBlock::new()
+                        .text("Category")
+                        .width(130.0)
+                        .font_weight(FontWeight::BOLD),
+                )),
+        )
+        .into()
 }
 
 pub(super) fn individual_list<S: Fn(RammapMessage) + Clone + 'static>(

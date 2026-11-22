@@ -64,6 +64,9 @@ impl RammapApp {
             RammapMessage::RunGnaBenchmark => {
                 crate::gna_service::run_gna_benchmark();
             }
+            RammapMessage::ToggleGnaLoadMode => {
+                crate::gna_service::toggle_gna_load_mode();
+            }
             RammapMessage::SetTab(tab) => {
                 self.tab = tab;
                 if tab == MemoryTab::GpuVram

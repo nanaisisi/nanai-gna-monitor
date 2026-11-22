@@ -35,6 +35,7 @@ pub enum MemoryMetric {
 pub enum RammapMessage {
     Refresh,
     RunGnaBenchmark,
+    ToggleGnaLoadMode,
     SetTab(MemoryTab),
     SearchChanged(String),
     SetViewMode(ViewMode),
