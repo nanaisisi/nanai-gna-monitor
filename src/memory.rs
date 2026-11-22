@@ -253,11 +253,7 @@ pub fn collect_process_memory() -> Vec<ProcessMemoryEntry> {
 
     for entry in &mut entries {
         if gna_pids.contains(&entry.pid) {
-            let published = nanai_gna_dll_load::read_process_gna_allocated_bytes(entry.pid)
-                .map(|b| b as u64)
-                .filter(|&b| b > 0);
-            entry.gna_usage_bytes =
-                published.unwrap_or_else(|| entry.working_set_bytes.max(64 * 1024));
+            entry.gna_usage_bytes = entry.working_set_bytes.max(64 * 1024);
         }
     }
 

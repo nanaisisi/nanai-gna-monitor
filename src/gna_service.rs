@@ -1,6 +1,5 @@
 use nanai_gna_dll_load::{
     GnaDevice, GnaLibrary, GnaLoadTestConfig, GnaLoadTester, inspect_system_gna_state,
-    publish_self_gna_allocated_bytes,
 };
 use std::sync::{
     Arc, LazyLock, Mutex,
@@ -85,6 +84,7 @@ struct GnaSessionState {
 }
 
 static LOAD_MODE_ACTIVE: AtomicBool = AtomicBool::new(false);
+static LOAD_MODE_CANCEL: AtomicBool = AtomicBool::new(false);
 
 static GNA_SESSION: LazyLock<Arc<Mutex<GnaSessionState>>> = LazyLock::new(|| {
     let mut lib_opt = None;
@@ -173,7 +173,6 @@ fn execute_gna_workload(
 ) -> Result<(usize, f64, f64, f64), String> {
     let report = GnaLoadTester::run_default_workload(device, config)
         .map_err(|e| format!("Load test failed: {e}"))?;
-    let _ = publish_self_gna_allocated_bytes();
 
     let completed = report.completed_inferences();
     let ips = report.inferences_per_second();
@@ -215,10 +214,12 @@ pub fn run_gna_benchmark() {
 pub fn toggle_gna_load_mode() {
     let was_active = LOAD_MODE_ACTIVE.fetch_xor(true, Ordering::SeqCst);
     if was_active {
+        LOAD_MODE_CANCEL.store(true, Ordering::SeqCst);
         let mut state = GNA_SESSION.lock().unwrap();
         state.last_test_status = "Load mode stopped".to_string();
         return;
     }
+    LOAD_MODE_CANCEL.store(false, Ordering::SeqCst);
 
     std::thread::spawn(|| {
         let Ok(lib) = GnaLibrary::load_default() else {
@@ -241,8 +242,15 @@ pub fn toggle_gna_load_mode() {
                 .with_concurrency(4)
                 .with_track_hw_usage(true);
 
-            match execute_gna_workload(&dev, config) {
-                Ok((completed, avg_latency, ips, hw_usage)) => {
+            match GnaLoadTester::run_default_workload_with_cancel(&dev, config, &LOAD_MODE_CANCEL) {
+                Ok(report) => {
+                    let completed = report.completed_inferences();
+                    let ips = report.inferences_per_second();
+                    let avg_latency = report.latency_avg().as_secs_f64() * 1000.0;
+                    let hw_usage = report
+                        .hw_duty_cycle_percentage()
+                        .unwrap_or_else(|| report.usage_monitor().cumulative_hw_usage_percentage());
+
                     let mut state = GNA_SESSION.lock().unwrap();
                     state.completed_inferences += completed;
                     state.avg_latency_ms = avg_latency;
