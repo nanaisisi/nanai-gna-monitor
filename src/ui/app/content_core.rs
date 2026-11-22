@@ -3,14 +3,18 @@ use crate::memory::{ProcessMemoryEntry, format_bytes};
 use crate::ui::types::{MemoryMetric, MemoryTab};
 
 pub(super) fn metric_value(p: &ProcessMemoryEntry, _metric: MemoryMetric) -> f64 {
-    p.gna_usage_bytes as f64
+    p.gna_usage_bytes() as f64
 }
 
 pub(super) fn group_metric_value(
     group: &ProcessGroup<ProcessMemoryEntry>,
     _metric: MemoryMetric,
 ) -> f64 {
-    group.items.iter().map(|p| p.gna_usage_bytes).sum::<u64>() as f64
+    group
+        .items()
+        .iter()
+        .map(|p| p.gna_usage_bytes())
+        .sum::<u64>() as f64
 }
 
 pub(super) fn metric_bytes(p: &ProcessMemoryEntry, metric: MemoryMetric) -> u64 {
@@ -28,23 +32,23 @@ pub(super) fn group_info(tab: MemoryTab, group: &ProcessGroup<ProcessMemoryEntry
     match tab {
         MemoryTab::GnaNpu => format!(
             "{} | Count: {} | Total GNA: {}",
-            group.title,
-            group.items.len(),
-            format_bytes(group.items.iter().map(|p| p.gna_usage_bytes).sum()),
+            group.title(),
+            group.items().len(),
+            format_bytes(group.items().iter().map(|p| p.gna_usage_bytes()).sum()),
         ),
         MemoryTab::SystemRam => format!(
             "{} | Total WS: {} | Total Private: {} | Count: {}",
-            group.title,
-            format_bytes(group.total_working_set),
-            format_bytes(group.total_private),
-            group.items.len()
+            group.title(),
+            format_bytes(group.total_working_set()),
+            format_bytes(group.total_private()),
+            group.items().len()
         ),
         MemoryTab::GpuVram => format!(
             "{} | Total Dedicated VRAM: {} | Total Shared: {} | Count: {}",
-            group.title,
-            format_bytes(group.total_gpu_dedicated),
-            format_bytes(group.total_gpu_shared),
-            group.items.len()
+            group.title(),
+            format_bytes(group.total_gpu_dedicated()),
+            format_bytes(group.total_gpu_shared()),
+            group.items().len()
         ),
     }
 }

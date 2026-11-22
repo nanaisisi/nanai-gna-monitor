@@ -13,28 +13,110 @@ use windows::Win32::System::Threading::{
 
 #[derive(Debug, Clone, Default)]
 pub struct SystemMemorySummary {
-    pub total_phys_bytes: u64,
-    pub avail_phys_bytes: u64,
-    pub used_phys_bytes: u64,
-    pub memory_load_pct: u32,
-    pub total_page_file_bytes: u64,
-    pub avail_page_file_bytes: u64,
-    pub commit_total_bytes: u64,
-    pub commit_limit_bytes: u64,
-    pub paged_pool_bytes: u64,
-    pub nonpaged_pool_bytes: u64,
-    pub process_count: u32,
+    total_phys_bytes: u64,
+    avail_phys_bytes: u64,
+    used_phys_bytes: u64,
+    memory_load_pct: u32,
+    total_page_file_bytes: u64,
+    avail_page_file_bytes: u64,
+    commit_total_bytes: u64,
+    commit_limit_bytes: u64,
+    paged_pool_bytes: u64,
+    nonpaged_pool_bytes: u64,
+    process_count: u32,
+}
+
+#[allow(dead_code)]
+impl SystemMemorySummary {
+    pub fn total_phys_bytes(&self) -> u64 {
+        self.total_phys_bytes
+    }
+
+    pub fn avail_phys_bytes(&self) -> u64 {
+        self.avail_phys_bytes
+    }
+
+    pub fn used_phys_bytes(&self) -> u64 {
+        self.used_phys_bytes
+    }
+
+    pub fn memory_load_pct(&self) -> u32 {
+        self.memory_load_pct
+    }
+
+    pub fn total_page_file_bytes(&self) -> u64 {
+        self.total_page_file_bytes
+    }
+
+    pub fn avail_page_file_bytes(&self) -> u64 {
+        self.avail_page_file_bytes
+    }
+
+    pub fn commit_total_bytes(&self) -> u64 {
+        self.commit_total_bytes
+    }
+
+    pub fn commit_limit_bytes(&self) -> u64 {
+        self.commit_limit_bytes
+    }
+
+    pub fn paged_pool_bytes(&self) -> u64 {
+        self.paged_pool_bytes
+    }
+
+    pub fn nonpaged_pool_bytes(&self) -> u64 {
+        self.nonpaged_pool_bytes
+    }
+
+    pub fn process_count(&self) -> u32 {
+        self.process_count
+    }
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct ProcessMemoryEntry {
-    pub pid: u32,
-    pub name: String,
-    pub working_set_bytes: u64,
-    pub private_bytes: u64,
-    pub gpu_dedicated_bytes: u64,
-    pub gpu_shared_bytes: u64,
-    pub gna_usage_bytes: u64,
+    pid: u32,
+    name: String,
+    working_set_bytes: u64,
+    private_bytes: u64,
+    gpu_dedicated_bytes: u64,
+    gpu_shared_bytes: u64,
+    gna_usage_bytes: u64,
+}
+
+impl ProcessMemoryEntry {
+    pub fn pid(&self) -> u32 {
+        self.pid
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn working_set_bytes(&self) -> u64 {
+        self.working_set_bytes
+    }
+
+    pub fn private_bytes(&self) -> u64 {
+        self.private_bytes
+    }
+
+    pub fn gpu_dedicated_bytes(&self) -> u64 {
+        self.gpu_dedicated_bytes
+    }
+
+    pub fn gpu_shared_bytes(&self) -> u64 {
+        self.gpu_shared_bytes
+    }
+
+    pub fn gna_usage_bytes(&self) -> u64 {
+        self.gna_usage_bytes
+    }
+
+    pub fn set_gpu_memory(&mut self, dedicated_bytes: u64, shared_bytes: u64) {
+        self.gpu_dedicated_bytes = dedicated_bytes;
+        self.gpu_shared_bytes = shared_bytes;
+    }
 }
 
 pub fn format_bytes(bytes: u64) -> String {

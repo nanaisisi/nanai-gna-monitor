@@ -1,5 +1,13 @@
 use crate::memory::ProcessMemoryEntry;
 
+#[allow(dead_code)]
+pub trait TypesInterface {
+    fn tab(&self) -> MemoryTab;
+    fn view_mode(&self) -> ViewMode;
+    fn group_mode(&self) -> GroupMode;
+    fn metric(&self) -> MemoryMetric;
+}
+
 #[derive(Clone, PartialEq, Default)]
 pub struct AppInput;
 

@@ -50,9 +50,9 @@ impl RammapApp {
             .iter()
             .filter(|p| {
                 query.is_empty() || {
-                    let category = classify_process(&p.name);
-                    p.name.to_lowercase().contains(&query)
-                        || p.pid.to_string().contains(&query)
+                    let category = classify_process(p.name());
+                    p.name().to_lowercase().contains(&query)
+                        || p.pid().to_string().contains(&query)
                         || category.label().to_lowercase().contains(&query)
                 }
             })
@@ -67,7 +67,7 @@ impl RammapApp {
             .font_weight(FontWeight::BOLD);
         let gna_status = crate::gna_service::get_gna_status();
         let gna_badge = TextBlock::new()
-            .text(format!("  [{}]", gna_status.description))
+            .text(format!("  [{}]", gna_status.description()))
             .font_size(14.0)
             .foreground(Color::argb(255, 70, 160, 245));
         let title_row = StackPanel::new()
@@ -85,7 +85,7 @@ impl RammapApp {
                     send.clone(),
                 ),
                 self.message_button(
-                    if gna_status.is_load_mode {
+                    if gna_status.is_load_mode() {
                         "🔥 Load Mode: ON"
                     } else {
                         "🔥 Load Mode: OFF"
@@ -121,16 +121,16 @@ impl RammapApp {
         let gna = crate::gna_service::get_gna_status();
         format!(
             "Intel GNA 3.0 NPU ({}) | Detected: {} | Loaded: {} | HW Usage: {:.1}% | GNA Procs: {} (Ext: {}) | Inferences: {} ({:.2} ms, {:.1} IPS) | {}",
-            gna.device_name,
-            gna.is_detected,
-            gna.is_loaded,
-            gna.hw_usage_percentage,
-            gna.active_process_count,
-            gna.has_external_processes,
-            gna.completed_inferences,
-            gna.avg_latency_ms,
-            gna.throughput_ips,
-            gna.last_test_status
+            gna.device_name(),
+            gna.is_detected(),
+            gna.is_loaded(),
+            gna.hw_usage_percentage(),
+            gna.active_process_count(),
+            gna.has_external_processes(),
+            gna.completed_inferences(),
+            gna.avg_latency_ms(),
+            gna.throughput_ips(),
+            gna.last_test_status()
         )
     }
 
@@ -186,11 +186,11 @@ impl RammapApp {
         } else if let Some(ref p) = self.selected_process {
             format!(
                 "🎯 [{}] {} ({}) | GNA / NPU: {}",
-                p.pid,
-                p.name,
-                classify_process(&p.name).label(),
-                if p.gna_usage_bytes > 0 {
-                    format_bytes(p.gna_usage_bytes)
+                p.pid(),
+                p.name(),
+                classify_process(p.name()).label(),
+                if p.gna_usage_bytes() > 0 {
+                    format_bytes(p.gna_usage_bytes())
                 } else {
                     "-".to_string()
                 }

@@ -158,13 +158,43 @@ pub fn classify_process(name: &str) -> ProcessCategory {
 /// Group a list of items into category buckets or process-name buckets
 #[derive(Debug, Clone)]
 pub struct ProcessGroup<T> {
-    pub title: String,
-    pub category: ProcessCategory,
-    pub total_working_set: u64,
-    pub total_private: u64,
-    pub total_gpu_dedicated: u64,
-    pub total_gpu_shared: u64,
-    pub items: Vec<T>,
+    title: String,
+    category: ProcessCategory,
+    total_working_set: u64,
+    total_private: u64,
+    total_gpu_dedicated: u64,
+    total_gpu_shared: u64,
+    items: Vec<T>,
+}
+
+impl<T> ProcessGroup<T> {
+    pub fn title(&self) -> &str {
+        &self.title
+    }
+
+    pub fn category(&self) -> ProcessCategory {
+        self.category
+    }
+
+    pub fn total_working_set(&self) -> u64 {
+        self.total_working_set
+    }
+
+    pub fn total_private(&self) -> u64 {
+        self.total_private
+    }
+
+    pub fn total_gpu_dedicated(&self) -> u64 {
+        self.total_gpu_dedicated
+    }
+
+    pub fn total_gpu_shared(&self) -> u64 {
+        self.total_gpu_shared
+    }
+
+    pub fn items(&self) -> &[T] {
+        &self.items
+    }
 }
 
 pub fn group_by_name(
@@ -172,7 +202,7 @@ pub fn group_by_name(
 ) -> Vec<ProcessGroup<crate::memory::ProcessMemoryEntry>> {
     let mut map: HashMap<String, Vec<crate::memory::ProcessMemoryEntry>> = HashMap::new();
     for entry in entries {
-        map.entry(entry.name.clone())
+        map.entry(entry.name().to_string())
             .or_default()
             .push(entry.clone());
     }
@@ -180,10 +210,10 @@ pub fn group_by_name(
     let mut groups = Vec::new();
     for (name, items) in map.into_iter() {
         let category = classify_process(&name);
-        let total_working_set: u64 = items.iter().map(|p| p.working_set_bytes).sum();
-        let total_private: u64 = items.iter().map(|p| p.private_bytes).sum();
-        let total_gpu_dedicated: u64 = items.iter().map(|p| p.gpu_dedicated_bytes).sum();
-        let total_gpu_shared: u64 = items.iter().map(|p| p.gpu_shared_bytes).sum();
+        let total_working_set: u64 = items.iter().map(|p| p.working_set_bytes()).sum();
+        let total_private: u64 = items.iter().map(|p| p.private_bytes()).sum();
+        let total_gpu_dedicated: u64 = items.iter().map(|p| p.gpu_dedicated_bytes()).sum();
+        let total_gpu_shared: u64 = items.iter().map(|p| p.gpu_shared_bytes()).sum();
         let count = items.len();
         let title = if count > 1 {
             format!("{} ({} processes)", name, count)
@@ -210,16 +240,16 @@ pub fn group_by_category(
 ) -> Vec<ProcessGroup<crate::memory::ProcessMemoryEntry>> {
     let mut map: HashMap<ProcessCategory, Vec<crate::memory::ProcessMemoryEntry>> = HashMap::new();
     for entry in entries {
-        let cat = classify_process(&entry.name);
+        let cat = classify_process(entry.name());
         map.entry(cat).or_default().push(entry.clone());
     }
 
     let mut groups = Vec::new();
     for (cat, items) in map.into_iter() {
-        let total_working_set: u64 = items.iter().map(|p| p.working_set_bytes).sum();
-        let total_private: u64 = items.iter().map(|p| p.private_bytes).sum();
-        let total_gpu_dedicated: u64 = items.iter().map(|p| p.gpu_dedicated_bytes).sum();
-        let total_gpu_shared: u64 = items.iter().map(|p| p.gpu_shared_bytes).sum();
+        let total_working_set: u64 = items.iter().map(|p| p.working_set_bytes()).sum();
+        let total_private: u64 = items.iter().map(|p| p.private_bytes()).sum();
+        let total_gpu_dedicated: u64 = items.iter().map(|p| p.gpu_dedicated_bytes()).sum();
+        let total_gpu_shared: u64 = items.iter().map(|p| p.gpu_shared_bytes()).sum();
         let count = items.len();
         let title = format!("{} ({} processes)", cat.label(), count);
 

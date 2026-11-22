@@ -1,21 +1,80 @@
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Rect {
-    pub x: f64,
-    pub y: f64,
-    pub width: f64,
-    pub height: f64,
+    x: f64,
+    y: f64,
+    width: f64,
+    height: f64,
+}
+
+impl Rect {
+    pub fn new(x: f64, y: f64, width: f64, height: f64) -> Self {
+        Self {
+            x,
+            y,
+            width,
+            height,
+        }
+    }
+
+    pub fn x(&self) -> f64 {
+        self.x
+    }
+
+    pub fn y(&self) -> f64 {
+        self.y
+    }
+
+    pub fn width(&self) -> f64 {
+        self.width
+    }
+
+    pub fn height(&self) -> f64 {
+        self.height
+    }
 }
 
 #[derive(Debug, Clone)]
 pub struct TreemapItem<T> {
-    pub value: f64,
-    pub data: T,
+    value: f64,
+    data: T,
+}
+
+impl<T> TreemapItem<T> {
+    pub fn new(value: f64, data: T) -> Self {
+        Self { value, data }
+    }
+
+    #[allow(dead_code)]
+    pub fn value(&self) -> f64 {
+        self.value
+    }
+
+    #[allow(dead_code)]
+    pub fn data(&self) -> &T {
+        &self.data
+    }
 }
 
 #[derive(Debug, Clone)]
 pub struct TreemapNode<T> {
-    pub rect: Rect,
-    pub data: T,
+    rect: Rect,
+    data: T,
+}
+
+impl<T> TreemapNode<T> {
+    #[allow(dead_code)]
+    pub fn rect(&self) -> Rect {
+        self.rect
+    }
+
+    #[allow(dead_code)]
+    pub fn data(&self) -> &T {
+        &self.data
+    }
+
+    pub fn into_parts(self) -> (Rect, T) {
+        (self.rect, self.data)
+    }
 }
 
 /// Squarified Treemap layout algorithm (similar to WizTree / SpaceMonger / WinDirStat)
@@ -44,45 +103,53 @@ pub fn layout_treemap<T: Clone>(items: &[TreemapItem<T>], bounds: Rect) -> Vec<T
         .collect();
 
     let mut result = Vec::new();
-    squarify(&mut normalized_items, &mut Vec::new(), bounds, &mut result);
+    let mut row = Vec::new();
+    squarify(SquarifyState {
+        children: &mut normalized_items,
+        row: &mut row,
+        bounds,
+        result: &mut result,
+    });
     result
 }
 
-fn squarify<T: Clone>(
-    children: &mut Vec<(f64, T)>,
-    row: &mut Vec<(f64, T)>,
-    mut bounds: Rect,
-    result: &mut Vec<TreemapNode<T>>,
-) {
-    if children.is_empty() {
-        if !row.is_empty() {
-            layout_row(row, bounds, result);
+struct SquarifyState<'a, T> {
+    children: &'a mut Vec<(f64, T)>,
+    row: &'a mut Vec<(f64, T)>,
+    bounds: Rect,
+    result: &'a mut Vec<TreemapNode<T>>,
+}
+
+fn squarify<T: Clone>(mut state: SquarifyState<'_, T>) {
+    if state.children.is_empty() {
+        if !state.row.is_empty() {
+            layout_row(state.row, state.bounds, state.result);
         }
         return;
     }
 
-    if bounds.width <= 1.0 || bounds.height <= 1.0 {
+    if state.bounds.width <= 1.0 || state.bounds.height <= 1.0 {
         return;
     }
 
-    let shortest_side = bounds.width.min(bounds.height);
-    let next_item = &children[0];
+    let shortest_side = state.bounds.width.min(state.bounds.height);
+    let next_item = &state.children[0];
 
-    let mut candidate_row = row.clone();
+    let mut candidate_row = state.row.clone();
     candidate_row.push(next_item.clone());
 
-    if row.is_empty()
-        || worst_aspect_ratio(row, shortest_side)
+    if state.row.is_empty()
+        || worst_aspect_ratio(state.row, shortest_side)
             >= worst_aspect_ratio(&candidate_row, shortest_side)
     {
-        let item = children.remove(0);
-        row.push(item);
-        squarify(children, row, bounds, result);
+        let item = state.children.remove(0);
+        state.row.push(item);
+        squarify(state);
     } else {
-        let used_bounds = layout_row(row, bounds, result);
-        row.clear();
-        bounds = remaining_bounds(bounds, used_bounds);
-        squarify(children, row, bounds, result);
+        let used_bounds = layout_row(state.row, state.bounds, state.result);
+        state.row.clear();
+        state.bounds = remaining_bounds(state.bounds, used_bounds);
+        squarify(state);
     }
 }
 

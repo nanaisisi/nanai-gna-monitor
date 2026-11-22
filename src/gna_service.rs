@@ -11,28 +11,78 @@ use std::time::Duration;
 
 #[derive(Debug, Clone)]
 pub struct GnaHardwareStatus {
-    pub is_detected: bool,
-    pub is_loaded: bool,
-    pub device_name: String,
-    pub description: String,
-    pub completed_inferences: usize,
-    pub avg_latency_ms: f64,
-    pub throughput_ips: f64,
-    pub hw_usage_percentage: f64,
-    pub active_process_count: usize,
-    pub has_external_processes: bool,
-    pub is_load_mode: bool,
-    pub last_test_status: String,
+    is_detected: bool,
+    is_loaded: bool,
+    device_name: String,
+    description: String,
+    completed_inferences: usize,
+    avg_latency_ms: f64,
+    throughput_ips: f64,
+    hw_usage_percentage: f64,
+    active_process_count: usize,
+    has_external_processes: bool,
+    is_load_mode: bool,
+    last_test_status: String,
 }
 
-pub struct GnaSessionState {
-    pub library: Option<GnaLibrary>,
-    pub device: Option<GnaDevice>,
-    pub completed_inferences: usize,
-    pub avg_latency_ms: f64,
-    pub throughput_ips: f64,
-    pub hw_usage_percentage: f64,
-    pub last_test_status: String,
+impl GnaHardwareStatus {
+    pub fn is_detected(&self) -> bool {
+        self.is_detected
+    }
+
+    pub fn is_loaded(&self) -> bool {
+        self.is_loaded
+    }
+
+    pub fn device_name(&self) -> &str {
+        &self.device_name
+    }
+
+    pub fn description(&self) -> &str {
+        &self.description
+    }
+
+    pub fn completed_inferences(&self) -> usize {
+        self.completed_inferences
+    }
+
+    pub fn avg_latency_ms(&self) -> f64 {
+        self.avg_latency_ms
+    }
+
+    pub fn throughput_ips(&self) -> f64 {
+        self.throughput_ips
+    }
+
+    pub fn hw_usage_percentage(&self) -> f64 {
+        self.hw_usage_percentage
+    }
+
+    pub fn active_process_count(&self) -> usize {
+        self.active_process_count
+    }
+
+    pub fn has_external_processes(&self) -> bool {
+        self.has_external_processes
+    }
+
+    pub fn is_load_mode(&self) -> bool {
+        self.is_load_mode
+    }
+
+    pub fn last_test_status(&self) -> &str {
+        &self.last_test_status
+    }
+}
+
+struct GnaSessionState {
+    library: Option<GnaLibrary>,
+    device: Option<GnaDevice>,
+    completed_inferences: usize,
+    avg_latency_ms: f64,
+    throughput_ips: f64,
+    hw_usage_percentage: f64,
+    last_test_status: String,
 }
 
 static LOAD_MODE_ACTIVE: AtomicBool = AtomicBool::new(false);

@@ -19,13 +19,12 @@ pub struct RammapApp {
 
 fn fetch_all_processes(gpu_adapters: &[GpuAdapterInfo]) -> Vec<ProcessMemoryEntry> {
     let mut processes = collect_process_memory();
-    let pids: Vec<u32> = processes.iter().map(|p| p.pid).collect();
+    let pids: Vec<u32> = processes.iter().map(|p| p.pid()).collect();
     let gpu_map = collect_all_process_gpu_memory(&pids, gpu_adapters);
 
     for p in &mut processes {
-        if let Some(gpu_info) = gpu_map.get(&p.pid) {
-            p.gpu_dedicated_bytes = gpu_info.dedicated_bytes;
-            p.gpu_shared_bytes = gpu_info.shared_bytes;
+        if let Some(gpu_info) = gpu_map.get(&p.pid()) {
+            p.set_gpu_memory(gpu_info.dedicated_bytes(), gpu_info.shared_bytes());
         }
     }
     processes
@@ -57,8 +56,8 @@ impl RammapApp {
                 self.gpu_adapters = collect_gpu_adapters();
                 self.processes = fetch_all_processes(&self.gpu_adapters);
                 if let Some(ref sel) = self.selected_process {
-                    let pid = sel.pid;
-                    self.selected_process = self.processes.iter().find(|p| p.pid == pid).cloned();
+                    let pid = sel.pid();
+                    self.selected_process = self.processes.iter().find(|p| p.pid() == pid).cloned();
                 }
             }
             RammapMessage::RunGnaBenchmark => {

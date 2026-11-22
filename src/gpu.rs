@@ -12,38 +12,71 @@ use windows::core::s;
 
 #[derive(Debug, Clone, Default)]
 pub struct GpuAdapterInfo {
-    pub luid: LUID,
-    pub dedicated_usage_bytes: u64,
-    pub dedicated_budget_bytes: u64,
-    pub shared_usage_bytes: u64,
-    pub shared_budget_bytes: u64,
+    luid: LUID,
+    dedicated_usage_bytes: u64,
+    dedicated_budget_bytes: u64,
+    shared_usage_bytes: u64,
+    shared_budget_bytes: u64,
+}
+
+#[allow(dead_code)]
+impl GpuAdapterInfo {
+    pub fn luid(&self) -> LUID {
+        self.luid
+    }
+
+    pub fn dedicated_usage_bytes(&self) -> u64 {
+        self.dedicated_usage_bytes
+    }
+
+    pub fn dedicated_budget_bytes(&self) -> u64 {
+        self.dedicated_budget_bytes
+    }
+
+    pub fn shared_usage_bytes(&self) -> u64 {
+        self.shared_usage_bytes
+    }
+
+    pub fn shared_budget_bytes(&self) -> u64 {
+        self.shared_budget_bytes
+    }
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct ProcessGpuMemory {
-    pub dedicated_bytes: u64,
-    pub shared_bytes: u64,
+    dedicated_bytes: u64,
+    shared_bytes: u64,
+}
+
+impl ProcessGpuMemory {
+    pub fn dedicated_bytes(&self) -> u64 {
+        self.dedicated_bytes
+    }
+
+    pub fn shared_bytes(&self) -> u64 {
+        self.shared_bytes
+    }
 }
 
 #[repr(C)]
 #[derive(Copy, Clone, Default, Debug)]
-pub struct D3DKMT_QUERYSTATISTICS_PROCESS_SEGMENT_GROUP_INFORMATION {
-    pub budget: u64,
-    pub requested: u64,
-    pub usage: u64,
-    pub demoted: u64,
+struct D3DKMT_QUERYSTATISTICS_PROCESS_SEGMENT_GROUP_INFORMATION {
+    budget: u64,
+    requested: u64,
+    usage: u64,
+    demoted: u64,
 }
 
 const D3DKMT_QUERYSTATISTICS_PROCESS_SEGMENT_GROUP: u32 = 9;
 
 #[repr(C)]
-pub struct D3DKMT_QUERYSTATISTICS {
-    pub r#type: u32,
-    pub adapter_luid: LUID,
-    pub process_handle: HANDLE,
-    pub query_result: [u8; 320], // Union D3DKMT_QUERYSTATISTICS_RESULT (large enough for all variants)
-    pub query_process_segment_group: u32, // SegmentGroup in union (0 = Local/Dedicated, 1 = NonLocal/Shared)
-    pub reserved_union: [u32; 7],
+struct D3DKMT_QUERYSTATISTICS {
+    r#type: u32,
+    adapter_luid: LUID,
+    process_handle: HANDLE,
+    query_result: [u8; 320], // Union D3DKMT_QUERYSTATISTICS_RESULT (large enough for all variants)
+    query_process_segment_group: u32, // SegmentGroup in union (0 = Local/Dedicated, 1 = NonLocal/Shared)
+    reserved_union: [u32; 7],
 }
 
 type D3DKMTQueryStatisticsFn = unsafe extern "system" fn(p_data: *mut c_void) -> i32;

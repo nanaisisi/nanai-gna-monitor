@@ -67,9 +67,12 @@ pub(super) fn individual_list<S: Fn(RammapMessage) + Clone + 'static>(
     sort_processes(&mut processes, app.metric);
     let mut rows = Vec::new();
     for p in processes.into_iter().take(150) {
-        let pid = p.pid;
-        let category = classify_process(&p.name);
-        let selected = app.selected_process.as_ref().is_some_and(|s| s.pid == pid);
+        let pid = p.pid();
+        let category = classify_process(p.name());
+        let selected = app
+            .selected_process
+            .as_ref()
+            .is_some_and(|s| s.pid() == pid);
         let click_sender = sender.clone();
         let selected_process = p.clone();
         let row = Border::new()
@@ -91,11 +94,11 @@ pub(super) fn individual_list<S: Fn(RammapMessage) + Clone + 'static>(
                     .spacing(16.0)
                     .children((
                         TextBlock::new().text(pid.to_string()).width(60.0),
-                        TextBlock::new().text(p.name).width(190.0),
+                        TextBlock::new().text(p.name()).width(190.0),
                         TextBlock::new().text(category.label()).width(130.0),
                         TextBlock::new()
-                            .text(if p.gna_usage_bytes > 0 {
-                                format_bytes(p.gna_usage_bytes)
+                            .text(if p.gna_usage_bytes() > 0 {
+                                format_bytes(p.gna_usage_bytes())
                             } else {
                                 "-".to_string()
                             })
@@ -128,9 +131,9 @@ pub(super) fn grouped_list<S: Fn(RammapMessage) + Clone + 'static>(
     sort_groups(&mut groups, app.metric);
     let mut rows = Vec::new();
     for group in groups {
-        let selected = app.selected_group_title.as_ref() == Some(&group.title);
+        let selected = app.selected_group_title.as_deref() == Some(group.title());
         let click_sender = sender.clone();
-        let first = group.items.first().cloned();
+        let first = group.items().first().cloned();
         let info = group_info(app.tab, &group);
         let row = Border::new()
             .padding(Thickness::xy(8.0, 4.0))
@@ -150,11 +153,11 @@ pub(super) fn grouped_list<S: Fn(RammapMessage) + Clone + 'static>(
                     .orientation(Orientation::Horizontal)
                     .spacing(16.0)
                     .children((
-                        TextBlock::new().text(group.title).width(260.0),
+                        TextBlock::new().text(group.title()).width(260.0),
                         TextBlock::new()
-                            .text(format!("{} inst", group.items.len()))
+                            .text(format!("{} inst", group.items().len()))
                             .width(60.0),
-                        TextBlock::new().text(group.category.label()).width(130.0),
+                        TextBlock::new().text(group.category().label()).width(130.0),
                     )),
             );
         rows.push(row.into());
